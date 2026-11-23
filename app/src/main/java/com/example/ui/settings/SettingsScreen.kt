@@ -164,6 +164,59 @@ fun SettingsScreen(
         }
       }
 
+      // Section 1.5: Browser & Privacy Preferences (Cache Browsing History & Auto-Rotation)
+      item {
+        Card(
+          shape = RoundedCornerShape(16.dp),
+          colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+          border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)),
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(modifier = Modifier.padding(16.dp)) {
+            Text("Browser & Privacy Automation", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Cache browsing history toggle
+            Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween,
+              modifier = Modifier.fillMaxWidth()
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text("Cache Browsing History", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Text("Persist session history across app launches", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+              }
+              androidx.compose.material3.Switch(
+                checked = uiState.cacheBrowsingHistory,
+                onCheckedChange = { viewModel.setCacheBrowsingHistory(it) },
+                modifier = Modifier.testTag("cache_browsing_history_switch")
+              )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+            Text("Proxy Auto-Rotation Interval", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+            Text("Automatically rotate proxy nodes in background sessions", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+              listOf("Off" to "Off", "1 min" to "1 Min", "5 min" to "5 Min", "15 min" to "15 Min").forEach { (key, label) ->
+                FilterChip(
+                  selected = uiState.proxyAutoRotationInterval == key,
+                  onClick = { viewModel.setProxyAutoRotationInterval(key) },
+                  label = { Text(label) },
+                  shape = RoundedCornerShape(10.dp),
+                  colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = PhantomGreen.copy(alpha = 0.2f),
+                    selectedLabelColor = PhantomGreen
+                  ),
+                  modifier = Modifier.testTag("autorotate_chip_$key")
+                )
+              }
+            }
+          }
+        }
+      }
+
       // Section 2: Data Backup & JSON Export/Import
       item {
         Card(

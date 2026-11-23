@@ -16,6 +16,8 @@ class PreferencesManager(private val context: Context) {
     val KEY_NOTICE_ACCEPTED = booleanPreferencesKey("notice_accepted")
     val KEY_TRIAL_BANNER_DISMISSED = booleanPreferencesKey("trial_banner_dismissed")
     val KEY_LANGUAGE = stringPreferencesKey("app_language") // "English", etc.
+    val KEY_CACHE_BROWSING_HISTORY = booleanPreferencesKey("cache_browsing_history")
+    val KEY_PROXY_AUTO_ROTATION_INTERVAL = stringPreferencesKey("proxy_auto_rotation_interval")
   }
 
   val themeFlow: Flow<String> = context.dataStore.data.map { prefs ->
@@ -45,6 +47,26 @@ class PreferencesManager(private val context: Context) {
   suspend fun setTrialBannerDismissed(dismissed: Boolean) {
     context.dataStore.edit { prefs ->
       prefs[KEY_TRIAL_BANNER_DISMISSED] = dismissed
+    }
+  }
+
+  val cacheBrowsingHistoryFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    prefs[KEY_CACHE_BROWSING_HISTORY] ?: true
+  }
+
+  val proxyAutoRotationIntervalFlow: Flow<String> = context.dataStore.data.map { prefs ->
+    prefs[KEY_PROXY_AUTO_ROTATION_INTERVAL] ?: "1 min"
+  }
+
+  suspend fun setCacheBrowsingHistory(cache: Boolean) {
+    context.dataStore.edit { prefs ->
+      prefs[KEY_CACHE_BROWSING_HISTORY] = cache
+    }
+  }
+
+  suspend fun setProxyAutoRotationInterval(interval: String) {
+    context.dataStore.edit { prefs ->
+      prefs[KEY_PROXY_AUTO_ROTATION_INTERVAL] = interval
     }
   }
 }

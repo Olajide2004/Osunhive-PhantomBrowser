@@ -16,6 +16,8 @@ data class SettingsUiState(
   val theme: String = "DARK",
   val language: String = "English",
   val noticeAccepted: Boolean = true,
+  val cacheBrowsingHistory: Boolean = true,
+  val proxyAutoRotationInterval: String = "1 min",
   val exportedJson: String? = null,
   val statusMessage: String? = null,
   val totalProfiles: Int = 0
@@ -29,19 +31,33 @@ class SettingsViewModel(
   private val _statusMessage = MutableStateFlow<String?>(null)
   private val _exportedJson = MutableStateFlow<String?>(null)
 
-  val uiState: StateFlow<SettingsUiState> = combine(
+  private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+
+  private val _baseSettingsFlow = combine(
     preferencesManager.themeFlow,
     preferencesManager.noticeAcceptedFlow,
+    preferencesManager.cacheBrowsingHistoryFlow
+  ) { theme, accepted, cache -> Triple(theme, accepted, cache) }
+
+  private val _extraSettingsFlow = combine(
+    preferencesManager.proxyAutoRotationIntervalFlow,
     profileRepository.allProfiles,
     _statusMessage,
     _exportedJson
-  ) { theme, accepted, profiles, status, json ->
+  ) { autoRotate, profiles, status, json -> Quad(autoRotate, profiles, status, json) }
+
+  val uiState: StateFlow<SettingsUiState> = combine(
+    _baseSettingsFlow,
+    _extraSettingsFlow
+  ) { base, extra ->
     SettingsUiState(
-      theme = theme,
-      noticeAccepted = accepted,
-      exportedJson = json,
-      statusMessage = status,
-      totalProfiles = profiles.size
+      theme = base.first,
+      noticeAccepted = base.second,
+      cacheBrowsingHistory = base.third,
+      proxyAutoRotationInterval = extra.first,
+      exportedJson = extra.fourth,
+      statusMessage = extra.third,
+      totalProfiles = extra.second.size
     )
   }.stateIn(
     scope = viewModelScope,
@@ -52,6 +68,18 @@ class SettingsViewModel(
   fun setTheme(theme: String) {
     viewModelScope.launch {
       preferencesManager.setTheme(theme)
+    }
+  }
+
+  fun setCacheBrowsingHistory(cache: Boolean) {
+    viewModelScope.launch {
+      preferencesManager.setCacheBrowsingHistory(cache)
+    }
+  }
+
+  fun setProxyAutoRotationInterval(interval: String) {
+    viewModelScope.launch {
+      preferencesManager.setProxyAutoRotationInterval(interval)
     }
   }
 
