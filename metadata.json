@@ -1,0 +1,6 @@
+{
+  "name": "PhantomProfile",
+  "description": "Multi-profile privacy browser manager with isolated fingerprint profiles, proxy rotation, and privacy controls.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
